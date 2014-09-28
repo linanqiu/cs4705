@@ -20,16 +20,25 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+*target*
+*.jar
+*.war
+*.ear
+*.class
+
+# eclipse specific git ignore
 *.pydevproject
+.project
 .metadata
-.gradle
-bin/
-tmp/
+bin/**
+tmp/**
+tmp/**/*
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
+.classpath
 .settings/
 .loadpath
 
@@ -38,18 +47,6 @@ local.properties
 
 # Locally stored "Eclipse launch configurations"
 *.launch
-
-# CDT-specific
-.cproject
-
-# PDT-specific
-.buildpath
-
-# sbteclipse plugin 
-.target
-
-# TeXlipse plugin
-.texlipse
 
 *.class
 
