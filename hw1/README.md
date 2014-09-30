@@ -1,5 +1,9 @@
 # HMM Tagger
 
+If reading Markdown in TXT hurts your eyes, treat yourself to
+
+[https://github.com/linanqiu/cs4705/tree/master/hw1](https://github.com/linanqiu/cs4705/tree/master/hw1)
+
 - `EmissionParameters.java` handles the emission parameters
 - `Markov.java` handles the N-grams and HMM
 
