@@ -14,8 +14,7 @@ If reading Markdown in TXT hurts your eyes, treat yourself to
 ```java
 EmissionParameters emissionParameters = new EmissionParameters();
 emissionParameters.setCounts(new File("ner.counts"));
-double emission = emissionParameters.getWordProbability("Germany",
-"I-LOC");
+double emission = emissionParameters.getWordProbability("Germany","I-LOC");
 ```
 
 The code above gives the `P(Germany | I-LOC)`
