@@ -190,7 +190,7 @@ public class EmissionParameters {
     if (probabilities.containsKey(tag)) {
       return probabilities.get(tag);
     } else {
-      return 0;
+      return Integer.MIN_VALUE;
     }
   }
 
@@ -266,5 +266,13 @@ public class EmissionParameters {
     }
     bufferedReader.close();
     bufferedWriter.close();
+  }
+
+  public boolean isRare(String word) {
+    return !wordProbabilities.containsKey(word);
+  }
+  
+  public String rareWordBucket(String word) {
+    
   }
 }
