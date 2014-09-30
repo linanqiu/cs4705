@@ -8,11 +8,32 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+/**
+ * Calculates emission parameters
+ * 
+ * @author linanqiu
+ * @file_name EmissionParameters.java
+ */
 public class EmissionParameters {
 
   public static final String RARETAG = "_RARE_";
   public static final String WORDTAG = "WORDTAG";
+
+  public static final String RARE_TWODIGITNUM = "_TWODIGITNUM_";
+  public static final String RARE_FOURDIGITNUM = "_FOURDIGITNUM_";
+  public static final String RARE_CONTAINSDIGITANDALPHA = "_CONTAINSDIGITANDALPHA_";
+  public static final String RARE_CONTAINSDIGITANDDASH = "_CONTAINSDIGITANDDASH_";
+  public static final String RARE_CONTAINSDIGITANDSLASH = "_CONTAINSDIGITANDSLASH_";
+  public static final String RARE_CONTAINSDIGITANDCOMMA = "_CONTAINSDIGITANDCOMMA_";
+  public static final String RARE_CONTAINSDIGITANDPERIOD = "_CONTAINSDIGITANDPERIOD_";
+  public static final String RARE_OTHERNUM = "_OTHERNUM_";
+  public static final String RARE_ALLCAPS = "_ALLCAPS_";
+  public static final String RARE_INITCAP = "_INITCAP_";
+  public static final String RARE_LOWERCASE = "_LOWERCASE_";
+  public static final String RARE_OTHER = "_OTHER_";
 
   // maps a tag to its total count C(y_i)
   private Hashtable<String, Integer> tagCounts;
@@ -156,9 +177,9 @@ public class EmissionParameters {
       String[] lineArray = line.split(" ");
       if (rares.containsKey(lineArray[0])) {
         if (lineArray.length > 1) {
-          line = RARETAG + " " + lineArray[1];
+          line = rareWordBucket(lineArray[0]) + " " + lineArray[1];
         } else {
-          line = RARETAG;
+          line = rareWordBucket(lineArray[0]);
         }
       }
       bufferedWriter.write(line + "\n");
@@ -184,7 +205,7 @@ public class EmissionParameters {
     if (wordProbabilitiesTags.containsKey(word)) {
       probabilities = wordProbabilitiesTags.get(word);
     } else {
-      probabilities = wordProbabilitiesTags.get(RARETAG);
+      probabilities = wordProbabilitiesTags.get(rareWordBucket(word));
     }
 
     if (probabilities.containsKey(tag)) {
@@ -208,7 +229,8 @@ public class EmissionParameters {
       double probability = entry.getKey();
       return probability;
     } else {
-      Entry<Double, String> entry = wordProbabilities.get(RARETAG).lastEntry();
+      Entry<Double, String> entry = wordProbabilities.get(rareWordBucket(word))
+          .lastEntry();
       double probability = entry.getKey();
       return probability;
     }
@@ -228,7 +250,8 @@ public class EmissionParameters {
       String type = entry.getValue();
       return type;
     } else {
-      Entry<Double, String> entry = wordProbabilities.get(RARETAG).lastEntry();
+      Entry<Double, String> entry = wordProbabilities.get(rareWordBucket(word))
+          .lastEntry();
       String type = entry.getValue();
       return type;
     }
@@ -271,8 +294,92 @@ public class EmissionParameters {
   public boolean isRare(String word) {
     return !wordProbabilities.containsKey(word);
   }
-  
+
   public String rareWordBucket(String word) {
-    
+    Pattern pattern = Pattern.compile("^[\\,\\.\\!\\?]+$");
+    Matcher matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_OTHER;
+    }
+
+    pattern = Pattern.compile("^\\d{2}$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_TWODIGITNUM;
+    }
+
+    pattern = Pattern.compile("^\\d{4}$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_FOURDIGITNUM;
+    }
+
+    pattern = Pattern.compile("^[0-9]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_OTHERNUM;
+    }
+
+    pattern = Pattern.compile("^[A-Z]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_ALLCAPS;
+    }
+
+    pattern = Pattern.compile("^[A-Z][a-z]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_INITCAP;
+    }
+
+    pattern = Pattern.compile("^[a-z]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_LOWERCASE;
+    }
+
+    pattern = Pattern.compile("^[0-9\\-]*[A-z]+[0-9\\-]*[A-z]*$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_CONTAINSDIGITANDALPHA;
+    }
+
+    pattern = Pattern.compile("^[0-9\\-]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_CONTAINSDIGITANDDASH;
+    }
+
+    pattern = Pattern.compile("^[0-9\\/]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_CONTAINSDIGITANDSLASH;
+    }
+
+    pattern = Pattern.compile("^[0-9\\.]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_CONTAINSDIGITANDPERIOD;
+    }
+
+    pattern = Pattern.compile("^[0-9\\,\\.]+$");
+    matcher = pattern.matcher(word);
+
+    if (matcher.find()) {
+      return RARE_CONTAINSDIGITANDCOMMA;
+    }
+
+    return RARE_OTHER;
   }
 }
