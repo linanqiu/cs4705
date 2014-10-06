@@ -1,0 +1,100 @@
+\documentclass[11pt]{scrartcl}
+\usepackage{dominatrix}
+\usepackage{colortbl}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.9}
+%\renewcommand\thesubsection{\alph{subsection}}
+\definecolor{light-gray}{gray}{0.75}
+\title{Problem Set 1: Analytical}
+\subject{Natural Language Processing}
+\author{Linan Qiu (lq2137)}
+\begin{document}
+\maketitle
+
+\section{Linear Interpolation}
+
+Expanding the linear interpolation parameter function,
+
+\begin{align*}
+L(\lambda_1, \lambda_2, \lambda_3) &= \sum_{w_1, w_2, w_3} c'(w_1, w_2, w_3)\log q(w_3 | w_1, w_2) \\
+&= \sum_{w_1, w_2, w_3} c'(w_1, w_2, w_3)  \log \left( \lambda_1 q_{ML} (w_3| w_1, w_2) + \lambda_2 q_{ML} (w_3 | w_2) + \lambda_3 q_{ML} (w_3) \right) \\
+\end{align*}
+
+On the other hand, perplexity is defined as $2^{-l}$ where 
+
+\[ l = \frac{1}{M} \sum^{m}_{i=1} \log p(x^i) \]
+
+where $m$ is the number of sentences and $p(x^i)$ is the probability of sentence $x^i$ occurring. 
+
+Minimizing perplexity means maximizing $l$. Expanding $l$ for trigram models, where $p(x_j^i)$ is the probability of word $x_j^i$ occurring in the sentence $i$
+
+\begin{align*}
+l &= \frac{1}{M} \sum^{m}_{i=1} \log p(x^i) \\
+&= \frac{1}{M} \sum^{m}_{i=1} \left( \log p(x_1^i) + \log p(x_2^i) + ... + \log p(x_n^i) \right) \\
+&= \frac{1}{M} \sum^m_{i=1} \sum^n_{j=1} \log p(x_j^i) \\
+&= \frac{1}{M} \sum^m_{i=1} \sum^n_{j=1} \log \left( \lambda_1 q_{ML} (x^i_j| x^i_{j-2}, x^i_{j-1}) + \lambda_2 q_{ML} (x^i_j | x^i_{j-1}) + \lambda_3 q_{ML} (x^i_j) \right)
+\end{align*}
+
+To minimize perplexity would mean to maximize this with respect to $\lambda_1, \lambda_2, \lambda_3$.
+
+\[ \max_{\lambda_1, \lambda_2, \lambda_3} \frac{1}{M} \sum^m_{i=1} \sum^n_{j=1} \log \left( \lambda_1 q_{ML} (x^i_j| x^i_{j-2}, x^i_{j-1}) + \lambda_2 q_{ML} (x^i_j | x^i_{j-1}) + \lambda_3 q_{ML} (x^i_j) \right) \]
+
+Since this includes duplicates, we can shorten portion to the right of $\sum^n_{j=1}$ to
+
+\begin{align*}
+&\max_{\lambda_1, \lambda_2, \lambda_3} \frac{1}{M} \sum^m_{i=1} \sum_{x^i_{j-2}, x^i_{j-1}, x^i_{j}} c'(x^i_{j-2}, x^i_{j-1}, x^i_{j})  \log \left( \lambda_1 q_{ML} (x^i_{j}| x^i_{j-2}, x^i_{j-1}) + \lambda_2 q_{ML} (x^i_{j} | x^i_{j-1}) + \lambda_3 q_{ML} (x^i_{j}) \right) \\ 
+&= \max_{\lambda_1, \lambda_2, \lambda_3} L(\lambda_1, \lambda_2, \lambda_3)
+\end{align*}
+
+Hence, maximizing the parameters means maximizing $l$ which means minimizing the perplexity.
+
+\section{Linear Interpolation with Bucketing}
+
+Defining $\Phi$ as a mapping of \textbf{trigram} into bins is erroneous as it will produce $\lambda$s that do not sum up to 1.
+
+For a text sequence $y_{i-2}, y_{i-1}, y_i$, where
+
+\begin{align*}
+Count(y_{i-2}, y_{i-1}, y_i) &= 0 \\
+Count(y_{i-1}, y_i) &= 0
+\end{align*}
+
+We have to ensure that $\lambda_1^{\Phi (y_{i-2}, y_{i-1}, y_i)} = 0$ since $Count(y_{i-1}, y_i) = 0$ and the trigram will be undefined.
+
+However, the following counts
+
+\begin{align*}
+Count(y_{i-2}, y_{i-1}, y_i) &= 0 \\
+Count(y_{i-1}, y_i) &> 0
+\end{align*}
+
+will also generate the same $\lambda_1^{\Phi (y_{i-2}, y_{i-1}, y_i)} = 0$. However, we would not want $\lambda_1^{\Phi (y_{i-2}, y_{i-1}, y_i)} = 0$ since the trigram is still defined and $\lambda_1^{\Phi (y_{i-2}, y_{i-1}, y_i)}$ should have a non-zero weight.
+
+Hence there is no way to ensure that the $\lambda$s will sum up to 1. We violate the constraint that $\lambda_1 + \lambda_2 + \lambda_3 = 1$. 
+
+\section{Modified Viterbi}
+
+\begin{itemize}
+\item \textbf{Input:} a sentence $x_1 ... x_n$, parameters $q(s|u,v)$ and $e(x|y)$
+\item \textbf{Definitions:} Define $T(x)$ to be the tag dictionary that lists the tags $y$ such that $e(x|y) > 0$. Define $S$ to be the set of possible tags. Define $S_{-1} = S_0 = \{*\}$. Define $S_k = T(x_k)$ for $k = 1 ... n$
+\item \textbf{Initialization:} Set $\pi(0, *, *) = 1$
+\item \textbf{Algorithm:}
+
+\begin{itemize}
+\item For $k = 1 ... n$
+
+\begin{itemize}
+\item For $u \in S_{k-1}$, $v \in S_{k}$,
+\begin{align*}
+\pi(k, u, v) &= \max_{w \in S_{k-2}} \left( \pi(k-1, w, u) * q(v | w, u) * e(x_k | v) \right) \\
+bp(k, u, v) &= \arg \max_{w \in S_{k-2}} \left( \pi(k-1, w, u) * q(v | w, u) * e(x_k | v) \right)
+\end{align*}
+\end{itemize}
+\item Set $(y_{n-1}, y_n) = \arg \max_{u \in S_{n-1}, v \in S_{n}} (\pi (n, u, v) * q(STOP | u, v))$
+\item For $k = (n-2) ... 1$,
+\[ y_k = bp(k+2, y_{k+1}, y_{k+2}) \]
+\end{itemize}
+\item \textbf{Return} the tag sequence $y_1 ... y_n$
+\end{itemize}
+
+\end{document}

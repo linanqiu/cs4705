@@ -5,10 +5,10 @@ public class Test {
     try {
 
       // Q4.1
-      // EmissionParameters emissionParameters = new EmissionParameters();
-      // emissionParameters.setCounts(new File("ner.counts"));
-      // double emission = emissionParameters.getWordProbability("Germany",
-      // "I-LOC");
+//       EmissionParameters emissionParameters = new EmissionParameters();
+//       emissionParameters.setCounts(new File("ner.counts"));
+//       double emission = emissionParameters.getWordProbability("Germany",
+//       "I-LOC");
       // these two should be the same
       // System.out.println(emission);
       // System.out.println(Math.log(142 / (double) 8286) / Math.log(2));
@@ -28,7 +28,7 @@ public class Test {
       // markov.readCounts(new File("ner_replaced.count"));
       // double ratio = markov.trigramBigramRatio("I-ORG", "I-ORG", "O");
       // these two should be the same
-      // System.out.println(ratio);
+      // System.out.println(ratio);mar
       // System.out.println(Math.log(2400 / (double) 3704) / Math.log(2));
 
       // Q5.2
