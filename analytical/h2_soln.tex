@@ -176,7 +176,7 @@ q(X \rightarrow x_i),& \n{if } X \rightarrow x_i \in R \\
 \item \textbf{Recursive Case:}
 \begin{itemize}
 \item For all $X \in N$, calculate
-\[ \pi(i, j, X) = \max_{X \rightarrow YZ \in R} * \pi\left(i, \frac{j}{2}, Y\right) * \pi\left(\frac{j}{2}+1, j, Z\right)\]
+\[ \pi(i, j, X) = \max_{X \rightarrow YZ \in R} \left[ q(\n{X} \rightarrow \n{Y Z}) * \pi\left(i, \frac{j}{2}, Y\right) * \pi\left(\frac{j}{2}+1, j, Z\right) \right] \]
 \end{itemize}
 \item \textbf{Return:} 
 \[\pi(1, n, S) = \max_{t \in \tau_G(s)} p(t)\]
