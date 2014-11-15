@@ -1,0 +1,153 @@
+\documentclass[11pt]{scrartcl}
+\usepackage{dominatrix}
+\usepackage{colortbl}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.9}
+\renewcommand\thesection{\arabic{section}}
+\renewcommand\thesubsection{\thesection (\alph{subsection})}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+\definecolor{light-gray}{gray}{0.75}
+
+\title{Problem Set 3: Analytical}
+\subject{Natural Language Processing}
+\author{Linan Qiu (lq2137)}
+\begin{document}
+\maketitle
+
+\section{}
+\subsection{}
+
+\begin{itemize}
+\item \textbf{Input:} English string $e$, integer $m$
+\item \textbf{Algorithm:}
+\begin{align*}
+p(f, a | e, m) &= \prod^m_{j=1} t(f_j | e_{a_j}) q(a_j | j, l, m) \\ 
+&= p(a | e, m) p(f| a, e, m)
+\end{align*}
+
+First, find $a^*$ where
+
+\begin{align*}
+a^* = \argmax_{a \in \{\text{all possible alignments of length } m\}} p(a|e,m)
+\end{align*}
+
+All possible alignments can be found, though there are $(1+l)^m$ possible $a^*$s. 
+
+Then find $f^*$ where
+
+\begin{align*}
+f^* = \argmax_{f \in \{\text{all possible French sequences of length m}\}} a^* * p(f|a,e,m)
+\end{align*}
+\item \textbf{Output:} $f^*$ and $a^*$
+\end{itemize}
+
+\subsection{}
+
+\begin{itemize}
+\item \textbf{Input:} English string $e$, integer $m$
+\item \textbf{Algorithm:} 
+
+We expand the IBM model to reduce run time from $O((l+1)^m)$.
+\begin{align*}
+p(f|e,m) &= \sum_{a:|a| = m} \prod^m_{j=1} t(f_j | e_{a_j}) q(a_j | j, l, m) \\
+&= \sum^l_{a_1 = 0} \sum^l_{a_2 = 0} ... \sum^l_{a_m = 0} \prod^m_{j=1} t(f_j | e_{a_j}) q(a_j | j, l, m) \\
+&= \left( \sum^l_{a_1 = 0} t(f_1 | e_{a_1}) q(a_1 | 1, l, m) \right) ... \left( \sum^l_{a_m = 0} t(f_m | e_{a_m}) q(a_m | m, l, m \right) \\
+\end{align*}
+This expression cuts runtime to $O((l+1)*m)$.
+
+Next we iterate through all possible French sentences 
+\[f^* \in \{\text{all possible French sequences of length m}\}\]
+
+\item \textbf{Output:} 
+\[\argmax_{f^* \in \{f \text{ and } |f^*| = m\}} p(f|e,m)\]
+\end{itemize}
+
+\subsection{}
+The model $\argmax_e p(f|e) P_{LM}(e)$ comprises of two portions
+
+\begin{itemize}
+\item $p(f|e)$ which represents how likely a French sequence is given the English sequence
+\item $P_{LM} (e)$ which represents the linguistic correctness of the English sequence
+\end{itemize}
+
+Hence, both the likelihood of translation and the linguistic correctness of the resulting sentence are considered.
+
+The model $\argmax_e p(e|f)$ only considers the likelihood of $e$ as a translation for $f$ without checking for the linguistic (grammatical or otherwise) correctness of the resulting English sentence.
+
+Without considering the linguistic correctness of the resulting English sentence, we may have worse results since we only considered the translation and not the correctness of the output sentence.
+
+\section{}
+
+\begin{itemize}
+\item \textbf{Input:} English string $e$ of length $l$, French string $f$ of length $m$
+\item \textbf{Algorithm:}
+\begin{itemize}
+\item \textbf{Initialize:}
+\begin{align*}
+a_0 &= 0 \\
+\pi(0, 0) &= 1
+\end{align*}
+\item For $j = 1...m$, for $b = 0 ... l$
+\begin{align*}
+\pi(j, b) &= \max_{c \in \{0 ... l\}} \left[ \pi(j-1, c) * t(f_j | e_b) * q(b | c, j, l, m) \right] \\
+bp(j, b) &= \argmax_{c \in \{0...l\}} \left[ \pi(j-1, c) * t(f_j | e_b) * q(b | c, j, l, m) \right]
+\end{align*}
+\item Set 
+\[a_m = \argmax_{c \in \{0 ... l\}} bp(m, c)\]
+\item For $k = (m - 1) ... 1$, 
+\[a_k = bp(k, a_k+1)\]
+\end{itemize}
+\item \textbf{Output:} Sequence $a = a_0 ... a_k$
+\end{itemize}
+
+\section{}
+%
+%\begin{itemize}
+%\item \textbf{Input:} Sentence $x = x_1 x_2 ... x_N$, phrase based model $(g, 0, 0)$ since there is no language model. $\text{next}(q,p)$, $\text{add}(Q_i, q', q, p)$, and $\text{beam}(Q_i)$ are defined according to the notes. 
+%\item \textbf{Initialization:} set $Q_0 = \{q_0\}, Q_i = \emptyset$ for $i = 1 ... N$
+%\item \textbf{Define:} $ph(q)$ to be the set of all phrases that are allowed to follow $q$. A phrase $p$ is allowed to follow $q$ if it satisfies all of the following conditions
+%\begin{itemize}
+%\item $p$ must not overlap with the bitstring of $q$.
+%\item $s(p) = t(q) + 1$
+%\end{itemize}
+%\item \textbf{Algorithm:}
+%\begin{itemize}
+%\item For $i = 0 ... n-1$, for each state $q \in \text{beam}(Q_i)$, for each phrase $p \in ph(q)$
+%\begin{itemize}
+%\item $q' = \text{next}(q,p)$
+%\item $\text{add}(Q_i, q', q, p)$ where $i = \text{len}(q')$
+%\end{itemize}
+%\end{itemize}
+%\item \textbf{Output:} Highest scoring state in $Q_N$
+%\end{itemize}
+
+Since distortion limit is 0, we do not worry about rearranging phrases. This problem then becomes one of choosing split points. Hence, we should use a modified CKY algorithm.
+
+
+\begin{itemize}
+\item \textbf{Input:} Sentence $x = x_1 x_2 ... x_N$
+\item \textbf{Initialization:} for $i=1...N$
+\[\pi(ii) = g(p_i)\]
+where $p_i$ is the single word phrase $(i, i, x_i)$. Hence, we start with the scores of every word as a phrase and improve on it dynamically, building upwards. 
+\item \textbf{Algorithm:}
+\begin{itemize}
+
+\item For $l = 1 ... (N-1)$
+
+\begin{itemize}
+\item for $i = 1 ... (N-l)$
+\item $j = i + l$
+\begin{align*}
+\text{splitMax} &= \max_{s \in \{i ... (j-1)\}} \left( \pi(i, s) + \pi(s+1, j)\right) \\
+\pi(i, j) &= \max (\text{splitMax}, g(w_i ... w_j))
+\end{align*}
+
+Here, we decide if we should split a sequence into two or more phrases or simply consider the entire sequence as one phrase. $\text{splitMax}$ shows the maximum score for splitting the sequence in a certain way, while $g(w_i ... w_j)$ is the score for keeping it as a single phrase. 
+\end{itemize}
+\end{itemize}
+\item \textbf{Output:} Return $\pi(1, N)$
+
+\end{itemize}
+
+\end{document}

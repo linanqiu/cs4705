@@ -97,6 +97,8 @@ Runtime for Question 6 is **50 seconds** on my machine.
      total        4664     0.714        0.714        0.714
 ```
 
+This model performed badly with NPs, VPs etc. 
+
 ### Question 6
 
 ```
@@ -135,6 +137,8 @@ Runtime for Question 6 is **50 seconds** on my machine.
      total        4664     0.742        0.742        0.742
 ```
 
-We see significant improvement from Question 5 to Question 6 due to vertical markovization. 
+We see significant improvement from Question 5 to Question 6 due to vertical markovization. In most categories, there were improvements. One example is **VERB**.
+
+However, it did not improve significantly from the places where the non-vertical PCFG didn't do well. Perhaps this may be improved via higher levels of Markovization?
 
 **I did not change my code from Question 5 to 6 simply because data structures were already optimized, hence the run time only increased from 25 to 50 seconds. I did not see the need to modify anything.**
