@@ -9,8 +9,11 @@ public class Test {
 
     IBM1 ibm1 = new IBM1(new File("corpus.de"), new File("corpus.en"));
     ibm1.initializeT();
-    final long endTime = System.currentTimeMillis();
+    ibm1.expMax();
+    ibm1.devwordsForeignRank(new File("devwords.txt"));
+    ibm1.findAlignments();
 
+    final long endTime = System.currentTimeMillis();
     System.out.println("Total execution time: " + (endTime - startTime));
   }
 }
