@@ -1,10 +1,15 @@
 package hw3;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map.Entry;
@@ -12,8 +17,8 @@ import java.util.TreeMap;
 
 public class IBM1 {
 
-  private File corpusDe;
-  private File corpusEn;
+  protected File corpusDe;
+  protected File corpusEn;
 
   public static final String NULL_TAG = "NULL";
   public static final int ITERATIONS = 5;
@@ -21,7 +26,7 @@ public class IBM1 {
   public static final int ALIGNMENT_SENTENCE_LIMIT = 20;
 
   // t(f|e) outer key e, inner key f
-  private Hashtable<String, Hashtable<String, Double>> t;
+  protected Hashtable<String, Hashtable<String, Double>> t;
 
   public IBM1(File corpusDe, File corpusEn) {
     this.corpusDe = corpusDe;
@@ -30,7 +35,7 @@ public class IBM1 {
 
   public void initializeT() throws IOException {
 
-    System.out.println("Initializing");
+    System.out.println("IBM1: Initializing");
 
     BufferedReader brDe = new BufferedReader(new FileReader(corpusDe));
     BufferedReader brEn = new BufferedReader(new FileReader(corpusEn));
@@ -77,7 +82,7 @@ public class IBM1 {
   }
 
   public void expMax() throws IOException {
-    System.out.println("EM Algorithm");
+    System.out.println("IBM1: EM Algorithm");
 
     // small corpus, so I'm reading it into memory. Don't kill me.
     BufferedReader brDe = new BufferedReader(new FileReader(corpusDe));
@@ -96,7 +101,7 @@ public class IBM1 {
     }
 
     for (int s = 0; s < ITERATIONS; s++) {
-      System.out.println("Iteration " + s);
+      System.out.println("IBM1: Iteration " + (s + 1));
       Counts counts = new Counts();
       // all counts are set to zero in the class
 
@@ -147,6 +152,9 @@ public class IBM1 {
   }
 
   public void devwordsForeignRank(File devwords) throws IOException {
+    BufferedWriter bw = new BufferedWriter(new FileWriter(
+        "ibm1_devwords_ranking.txt"));
+
     BufferedReader br = new BufferedReader(new FileReader(devwords));
     String wordEn;
 
@@ -158,14 +166,15 @@ public class IBM1 {
         ranking.put(foreign.get(wordDe), wordDe);
       }
 
-      System.out.println("=== " + wordEn + " ===");
+      bw.write("\n" + wordEn + "\n\n");
 
       int rankingLength = Math.min(RANKING_PRINT, ranking.size());
       for (int i = 0; i < rankingLength; i++) {
-        Entry<Double, String> firstEntry = ranking.pollFirstEntry();
-        System.out.println(firstEntry);
+        Entry<Double, String> lastEntry = ranking.pollLastEntry();
+        bw.write(lastEntry.getKey() + " " + lastEntry.getValue() + "\n");
       }
     }
+    bw.close();
     br.close();
   }
 
@@ -173,19 +182,30 @@ public class IBM1 {
     BufferedReader brDe = new BufferedReader(new FileReader(corpusDe));
     BufferedReader brEn = new BufferedReader(new FileReader(corpusEn));
 
+    BufferedWriter bw = new BufferedWriter(new FileWriter("ibm1_alignment.txt"));
+
     String lineDe;
     String lineEn;
 
-    // int lineCount = 0;
+    int lineCount = 0;
 
     while (((lineDe = brDe.readLine()) != null)
         && ((lineEn = brEn.readLine())) != null) {
+      if (lineCount == ALIGNMENT_SENTENCE_LIMIT) {
+        brDe.close();
+        brEn.close();
+        bw.close();
+        return;
+      }
+      lineCount++;
+
+      String lineEnOriginal = lineEn;
 
       lineEn = NULL_TAG + " " + lineEn;
       String[] wordsDe = lineDe.split(" ");
       String[] wordsEn = lineEn.split(" ");
 
-      int[] alignment = new int[wordsDe.length];
+      ArrayList<Integer> alignments = new ArrayList<Integer>();
 
       for (int i = 0; i < wordsDe.length; i++) {
 
@@ -202,17 +222,17 @@ public class IBM1 {
             aMax = j;
           }
         }
-        alignment[i] = aMax;
+        alignments.add(aMax);
       }
 
-      for (int a : alignment) {
-        System.out.print(a + " ");
-      }
-      System.out.println();
+      bw.write(lineEnOriginal + "\n");
+      bw.write(lineDe + "\n");
+      bw.write(alignments + "\n");
+      bw.write("\n");
     }
-
     brDe.close();
     brEn.close();
+    bw.close();
   }
 
   public void printTValues() {
@@ -222,5 +242,26 @@ public class IBM1 {
             + t.get(wordDe).get(wordEn));
       }
     }
+  }
+
+  public void serializeT(File tSerialize) throws IOException {
+    System.out.println("IBM1: Serializing t");
+    FileOutputStream fileOut = new FileOutputStream(tSerialize);
+    ObjectOutputStream out = new ObjectOutputStream(fileOut);
+    out.writeObject(t);
+    out.close();
+    fileOut.close();
+  }
+
+  public void deserializeT(File tSerialize) throws IOException,
+      ClassNotFoundException {
+
+    System.out.println("IBM1: Deserializing t");
+
+    FileInputStream fileIn = new FileInputStream(tSerialize);
+    ObjectInputStream in = new ObjectInputStream(fileIn);
+    t = (Hashtable<String, Hashtable<String, Double>>) in.readObject();
+    in.close();
+    fileIn.close();
   }
 }

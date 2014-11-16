@@ -49,8 +49,25 @@ public class Counts {
     return 0;
   }
 
+  public double getCjilm(int j, int tripleHash) {
+    if (cjilm.containsKey(tripleHash)) {
+      if (cjilm.get(tripleHash).containsKey(j)) {
+        return cjilm.get(tripleHash).get(j);
+      }
+    }
+    return 0;
+  }
+
   public double getCilm(int i, int l, int m) {
     int tripleHash = tripleHash(i, l, m);
+    if (cilm.containsKey(tripleHash)) {
+      return cilm.get(tripleHash);
+    }
+
+    return 0;
+  }
+
+  public double getCilm(int tripleHash) {
     if (cilm.containsKey(tripleHash)) {
       return cilm.get(tripleHash);
     }
@@ -88,7 +105,7 @@ public class Counts {
     cilm.put(tripleHash, count);
   }
 
-  public int tripleHash(int i, int l, int m) {
+  private int tripleHash(int i, int l, int m) {
     int h = i;
     h = h * 31 + l;
     h = h * 31 + m;
