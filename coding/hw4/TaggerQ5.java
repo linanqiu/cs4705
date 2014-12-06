@@ -1,17 +1,17 @@
-package hw4;
+
 
 import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * Watered down wrapper for the purpose of Q4
+ * Watered down wrapper for the purpose of Q5
  * 
  * @author linanqiu
- * @file_name TaggerQ4.java
+ * @file_name TaggerQ5.java
  */
-public class TaggerQ4 extends Tagger {
+public class TaggerQ5 extends Tagger {
 
-  public TaggerQ4(String pyTaggerHistoryGeneratorName,
+  public TaggerQ5(String pyTaggerHistoryGeneratorName,
       String pyTaggerDecoderName) throws IOException {
     super(pyTaggerHistoryGeneratorName, pyTaggerDecoderName);
     // TODO Auto-generated constructor stub
@@ -31,6 +31,13 @@ public class TaggerQ4 extends Tagger {
     features.add(bigramFeature);
     features.add(tagFeature);
 
+    String[] suffixes = generateSuffixes(word);
+    for (String suffix : suffixes) {
+      String suffixFeature = SUFFIX + ":" + suffix + ":" + tagCurrent;
+      features.add(suffixFeature);
+    }
+
     return features;
   }
+
 }

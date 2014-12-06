@@ -1,14 +1,10 @@
-package hw4;
-
 import java.io.File;
 
-public class Test {
+public class TaggerTest {
 
   public static void main(String[] args) throws Exception {
 
     if (args[0].equals("4")) {
-
-      // question 4
       Tagger tagger = new TaggerQ4("tagger_history_generator.py",
           "tagger_decoder.py");
       tagger.setV(new File("tag.model"));
