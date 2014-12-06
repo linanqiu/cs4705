@@ -1,0 +1,146 @@
+\documentclass[11pt]{scrartcl}
+\usepackage{dominatrix}
+\usepackage{colortbl}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.9}
+\renewcommand\thesection{\arabic{section}}
+\renewcommand\thesubsection{\thesection (\alph{subsection})}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand{\vstar}{\ensuremath{\mathbf{v}^*}}
+\newcommand{\vvec}{\ensuremath{\mathbf{v}}}
+\newcommand{\fvec}{\ensuremath{\mathbf{f}}}
+\newcommand{\n}[1]{\ensuremath{\text{#1}}}
+
+\definecolor{light-gray}{gray}{0.75}
+
+\title{Problem Set 4: Analytical}
+\subject{Natural Language Processing}
+\author{Linan Qiu (lq2137)}
+\begin{document}
+\maketitle
+
+\section{}
+\subsection{}
+
+The derivative of $L(\mathbf{v})$ is 
+
+\[ \frac{d L(\vvec)}{d v_j} = \sum_{i=1}^{n} f_j \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vvec \right) f_j \left(x^i, y\right) - 2C v_j \]
+
+And $\mathbf{v}^* = \argmax_{v\in \mathcal{R}^d} L(\mathbf{v})$
+
+Hence 
+
+\[ \frac{d \vstar}{d v_j} = 0\]
+
+\begin{align*}
+\frac{d L(\vstar)}{d v_1} &= \sum_{i=1}^{n} f_1 \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_1 \left(x^i, y\right) - 2C v_1 = 0 \\ 
+\frac{d L(\vstar)}{d v_2} &= \sum_{i=1}^{n} f_2 \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_2 \left(x^i, y\right) - 2C v_2 = 0
+\end{align*}
+
+At $\vstar$, we have shown that
+
+\[ v_1 = v_2 \]
+
+\subsection{}
+
+\[ \frac{d L(\vvec)}{d v_j} = \sum_{i=1}^{n} f_j \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vvec \right) f_j \left(x^i, y\right) - C \]
+
+since $ \frac{d}{d v_k} \left( C \sum_k |v_k| \right)= C \frac{v_k}{|v_k|} $
+
+Then, if $f_1 = f_2$, then at $v_1$ and $v_2$,
+ 
+\begin{align*}
+\frac{d L(\vstar)}{d v_1} &= \sum_{i=1}^{n} f_1 \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_1 \left(x^i, y\right) - C \frac{v_1}{|v_1|} = 0 \\ 
+\frac{d L(\vstar)}{d v_2} &= \sum_{i=1}^{n} f_2 \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_2 \left(x^i, y\right) - C \frac{v_2}{|v_2|} = 0
+\end{align*}
+
+Then, 
+
+\[ \frac{v_1}{|v_1|} = \frac{v_2}{|v_2|} \]
+
+This does not impose the condition that at $\vstar$, $v_1 = v_2$. However, it does impose the constraint that $\frac{v_1}{|v_1|} = \frac{v_2}{|v_2|}$
+
+\section{}
+
+%We set $\vstar$ to be the vector representing the $\log$ counts of bigrams. In other words, $v_i$ is the $\log$ number of times $f_i = 1$ in the training corpus. If the bigram \texttt{the model} is represented by feature $f_3$ and the bigram appears 3 times in the training corpus, then $\vstar = [v_1, v_2, \log{3}, v_4 ... v_{|\mathcal{V}|^2}]$
+%
+%This allows us to define the probability $P\left(y = w_2 | x = w_1, \vstar\right)$
+%
+%\[ P\left(y = w_2 | x = w_1, \vstar\right) = \frac{e^{\vstar \cdot \fvec\left(w_1, w_2\right)}}{\sum_{y' \in \mathcal{V}} e^{\vstar \cdot \fvec\left(w_1, y'\right)}} \] 
+%
+%Since $f_i = 1$ if the bigram pair is $\left(w_1, w_2\right)$, $\vstar \cdot \fvec\left(w_1, w_2\right)$ is 0 for all values in $\vstar$ except $v_i$ where $f_i$ represents the bigram $\left(w_1, w_2\right)$. Then, the numerator would be 
+%
+%\[e^{\log{k_i}} = k = \text{Count}\left(w_1, w_2\right)\]
+%
+%where $k$ is the count of the bigram in the training corpus. 
+%
+%Similarly, in the denominator, we are iterating over all possible $y' \in \mathcal{V}$, effectively taking all possible values for $y$. Using the same logic, each of those exponentials will yield the count for each of those bigrams. Summing them over all the possible bigrams will give 
+%
+%\[\sum_{y' \in \mathcal{V}} e^{\log{k_{y'}}} = \sum_{y' \in \mathcal{V}} k_{y'} =  \text{Count}\left(w_1\right)\]
+%
+%Hence, 
+%
+%\[ P\left(y = w_2 | x = w_1, \vstar\right) = \frac{\text{Count}\left(w_1, w_2\right)}{\text{Count} \left(w_1 \right)}\]
+
+\[ \frac{d L(\vvec)}{d v_j} = \sum_{i=1}^{n} f_j \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vvec \right) f_j \left(x^i, y\right) \]
+
+At $\vstar$, $\frac{d L(\vvec)}{dv_j} = 0$
+
+Then, picking a certain feature $f_j$ where
+
+\[ f_j(x,y) = \begin{cases}
+1,& \n{if } y = w_2 \n{ and } x = w_1 \\
+0,& \n{otherwise}
+\end{cases} \]
+
+\begin{align*}
+\sum_{i=1}^{n} f_j \left(x^i, y^i \right) - \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_j \left(x^i, y\right) &= 0 \\
+\sum_{i=1}^{n} f_j \left(x^i, y^i \right) &= \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_j \left(x^i, y\right) \\ 
+\end{align*}
+
+$f_j = 1$ only when the bigram $\left(w_1, w_2\right)$ occurs. Then, 
+
+\[ \text{Count}\left(w_1, w_2\right) = \sum_{i=1}^{n} f_j \left(x^i, y^i \right)\]. 
+
+Furthermore, in $\sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_j \left(x^i, y\right)$, since $f_j=1$ only when the bigram occurs, and on the we are iterating over all $y \in \mathcal{Y}$, we are effectively counting the number of times $x_i = w_1$ and  multiplying that with the probability portion on the right of the equation. Then,
+
+\[ \text{Count}\left(w_1\right) P\left(y = w_2 | x = w_1, \vstar\right) = \sum_{i=1}^{n} \sum_{y \in \mathcal{Y}} p\left(y | x^i; \vstar \right) f_j \left(x^i, y\right) \] 
+
+Hence,
+
+\begin{align*}
+\text{Count}\left(w_1, w_2\right) &= \text{Count}\left(w_1\right) P\left(y = w_2 | x = w_1, \vstar\right) \\
+P\left(y = w_2 | x = w_1, \vstar\right) &= \frac{\text{Count}\left(w_1, w_2\right)}{\text{Count}\left(w_1\right)}
+\end{align*}
+
+
+\section{}
+
+\subsection{}
+
+\begin{align*}
+f_1(x,y) &= \begin{cases}
+1,& \n{if } x = y \\
+0,& \n{otherwise}
+\end{cases} \\ 
+f_2(x,y) &= \begin{cases}
+1,& \n{if } x = y' \n{ where } y' \n{ is the reverse of } x\\
+0,& \n{otherwise}
+\end{cases}
+\end{align*}
+
+\subsection{}
+
+\begin{alignat*}{3}
+P(\mathtt{the} | \mathtt{the}) &= \frac{e^{v_1}}{e^0 + e^{v_1} + e^{v_2}} &&= 0.4 \\ 
+P(\mathtt{eht} | \mathtt{the}) &= \frac{e^{v_2}}{e^0 + e^{v_1} + e^{v_2}} &&= 0.3 \\ 
+P(\mathtt{dog} | \mathtt{the}) &= \frac{e^{0}}{e^0 + e^{v_1} + e^{v_2}} &&= 0.3
+\end{alignat*}
+
+\subsection{}
+
+By inspection, $v_2 = 0$. Then, $e^{v_1} = \frac{4}{3}$, $v_1 = \log{\frac{4}{3}}$
+
+\[ \vvec = \left[\log{\frac{4}{3}}, 0\right] \]
+
+\end{document}
